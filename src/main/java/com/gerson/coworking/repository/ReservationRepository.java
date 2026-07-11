@@ -22,6 +22,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     @EntityGraph(attributePaths = {"space", "user"})
     Optional<Reservation> findById(UUID id);
 
+    @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.space.id = :spaceId " +
+           "AND r.date = :date AND r.status IN ('PENDING_PAYMENT', 'CONFIRMED') " +
+           "AND r.startTime < :endTime AND r.endTime > :startTime")
     boolean existsConflictingReservation(UUID spaceId, LocalDate date, LocalTime startTime, LocalTime endTime);
 
     @EntityGraph(attributePaths = {"space", "user"})

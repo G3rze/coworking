@@ -33,4 +33,7 @@ build/
 .vscode/
 
 ### Guide PDF ###
-Prueba Tecnica Backend 2026.pdf
+'Prueba Tecnica Backend 2026.pdf'1.
+
+### ENV ###
+.env

@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@Table(name = "spaces")
+@Table(name = "spaces", schema = "coworking")
 @Getter
 @Setter
 @NoArgsConstructor

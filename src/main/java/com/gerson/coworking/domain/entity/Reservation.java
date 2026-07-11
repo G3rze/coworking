@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.UUID;
 
 @Entity
-@Table(name = "reservations")
+@Table(name = "reservations", schema = "coworking")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -34,13 +34,13 @@ public class Reservation {
     private User user;
 
     @Column(nullable = false)
-    private Instant date;
+    private LocalDate date;
 
     @Column(name = "start_time", nullable = false)
-    private Instant startTime;
+    private LocalTime startTime;
 
     @Column(name = "end_time", nullable = false)
-    private Instant endTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
