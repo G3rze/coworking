@@ -26,10 +26,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserCreateRequest request) {
         User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
+                .username(request.username())
+                .email(request.email())
+                .password(passwordEncoder.encode(request.password()))
+                .role(request.role())
                 .build();
 
         return userRepository.save(user);

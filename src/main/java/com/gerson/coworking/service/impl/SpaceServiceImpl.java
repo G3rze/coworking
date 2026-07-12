@@ -5,6 +5,7 @@ import com.gerson.coworking.domain.dto.space.SpaceResponse;
 import com.gerson.coworking.domain.dto.space.SpaceUpdateRequest;
 import com.gerson.coworking.domain.entity.Space;
 import com.gerson.coworking.domain.enums.SpaceStatus;
+import com.gerson.coworking.exception.ResourceNotFoundException;
 import com.gerson.coworking.repository.SpaceRepository;
 import com.gerson.coworking.service.SpaceService;
 
@@ -29,11 +30,11 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     public SpaceResponse create(SpaceCreateRequest request) {
         Space space = Space.builder()
-                .name(request.getName())
-                .description(request.getDescription())
-                .capacity(request.getCapacity())
-                .location(request.getLocation())
-                .pricePerHour(request.getPricePerHour())
+                .name(request.name())
+                .description(request.description())
+                .capacity(request.capacity())
+                .location(request.location())
+                .pricePerHour(request.pricePerHour())
                 .status(SpaceStatus.AVAILABLE)
                 .build();
 
@@ -44,14 +45,14 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     public SpaceResponse update(UUID id, SpaceUpdateRequest request) {
         Space space = spaceRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Space not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Space", "id", id));
 
-        space.setName(request.getName());
-        space.setDescription(request.getDescription());
-        space.setCapacity(request.getCapacity());
-        space.setLocation(request.getLocation());
-        space.setPricePerHour(request.getPricePerHour());
-        space.setStatus(request.getStatus());
+        space.setName(request.name());
+        space.setDescription(request.description());
+        space.setCapacity(request.capacity());
+        space.setLocation(request.location());
+        space.setPricePerHour(request.pricePerHour());
+        space.setStatus(request.status());
 
         Space updated = spaceRepository.save(space);
         return mapToResponse(updated);
@@ -60,7 +61,7 @@ public class SpaceServiceImpl implements SpaceService {
     @Override
     public void delete(UUID id) {
         if (!spaceRepository.existsById(id)) {
-            throw new RuntimeException("Space not found with id: " + id);
+            throw new ResourceNotFoundException("Space", "id", id);
         }
         spaceRepository.deleteById(id);
     }
@@ -94,15 +95,15 @@ public class SpaceServiceImpl implements SpaceService {
     }
 
     private SpaceResponse mapToResponse(Space space) {
-        return SpaceResponse.builder()
-                .id(space.getId())
-                .name(space.getName())
-                .description(space.getDescription())
-                .capacity(space.getCapacity())
-                .location(space.getLocation())
-                .pricePerHour(space.getPricePerHour())
-                .status(space.getStatus())
-                .createdAt(space.getCreatedAt())
-                .build();
+        return new SpaceResponse(
+                space.getId(),
+                space.getName(),
+                space.getDescription(),
+                space.getCapacity(),
+                space.getLocation(),
+                space.getPricePerHour(),
+                space.getStatus(),
+                space.getCreatedAt()
+        );
     }
 }

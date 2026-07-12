@@ -3,12 +3,16 @@ package com.gerson.coworking.service.impl;
 import com.gerson.coworking.domain.dto.reservation.ReservationCreateRequest;
 import com.gerson.coworking.domain.dto.reservation.ReservationFilterRequest;
 import com.gerson.coworking.domain.dto.reservation.ReservationResponse;
+import com.gerson.coworking.domain.dto.reservation.SpaceBasicInfo;
+import com.gerson.coworking.domain.dto.reservation.UserBasicInfo;
 import com.gerson.coworking.domain.entity.Reservation;
 import com.gerson.coworking.domain.entity.Space;
 import com.gerson.coworking.domain.entity.User;
 import com.gerson.coworking.domain.enums.ReservationStatus;
 import com.gerson.coworking.domain.state.ReservationState;
 import com.gerson.coworking.domain.state.ReservationStateFactory;
+import com.gerson.coworking.exception.OverlappingReservationException;
+import com.gerson.coworking.exception.ResourceNotFoundException;
 import com.gerson.coworking.repository.ReservationRepository;
 import com.gerson.coworking.repository.SpaceRepository;
 import com.gerson.coworking.repository.UserRepository;
@@ -47,34 +51,34 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationResponse create(UUID userId, ReservationCreateRequest request) {
-        Space space = spaceRepository.findById(request.getSpaceId())
-                .orElseThrow(() -> new RuntimeException("Space not found with id: " + request.getSpaceId()));
+        Space space = spaceRepository.findById(request.spaceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Space", "id", request.spaceId()));
 
-        if (request.getEndTime().isBefore(request.getStartTime()) ||
-            request.getEndTime().equals(request.getStartTime())) {
-            throw new RuntimeException("End time must be after start time");
+        if (request.endTime().isBefore(request.startTime()) ||
+            request.endTime().equals(request.startTime())) {
+            throw new IllegalArgumentException("End time must be after start time");
         }
 
         boolean hasConflict = reservationRepository.existsConflictingReservation(
-                request.getSpaceId(),
-                request.getDate(),
-                request.getStartTime(),
-                request.getEndTime()
+                request.spaceId(),
+                request.date(),
+                request.startTime(),
+                request.endTime()
         );
 
         if (hasConflict) {
-            throw new RuntimeException("Time slot conflict: space is already reserved for this time period");
+            throw new OverlappingReservationException();
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         Reservation reservation = Reservation.builder()
                 .space(space)
                 .user(user)
-                .date(request.getDate())
-                .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
+                .date(request.date())
+                .startTime(request.startTime())
+                .endTime(request.endTime())
                 .status(ReservationStatus.PENDING_PAYMENT)
                 .build();
 
@@ -145,10 +149,10 @@ public class ReservationServiceImpl implements ReservationService {
     @Transactional(readOnly = true)
     public List<ReservationResponse> filter(ReservationFilterRequest filter) {
         return reservationRepository.findByFilter(
-                filter.getSpaceId(),
-                filter.getDateFrom(),
-                filter.getDateTo(),
-                filter.getStatus()
+                filter.spaceId(),
+                filter.dateFrom(),
+                filter.dateTo(),
+                filter.status()
         ).stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
@@ -156,29 +160,33 @@ public class ReservationServiceImpl implements ReservationService {
 
     private Reservation findByIdOrThrow(UUID id) {
         return reservationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation", "id", id));
     }
 
     private ReservationResponse mapToResponse(Reservation reservation) {
-        return ReservationResponse.builder()
-                .id(reservation.getId())
-                .space(ReservationResponse.SpaceBasicInfo.builder()
-                        .id(reservation.getSpace().getId())
-                        .name(reservation.getSpace().getName())
-                        .location(reservation.getSpace().getLocation())
-                        .build())
-                .user(ReservationResponse.UserBasicInfo.builder()
-                        .id(reservation.getUser().getId())
-                        .username(reservation.getUser().getUsername())
-                        .email(reservation.getUser().getEmail())
-                        .build())
-                .date(reservation.getDate())
-                .startTime(reservation.getStartTime())
-                .endTime(reservation.getEndTime())
-                .status(reservation.getStatus())
-                .totalPrice(reservation.getTotalPrice())
-                .paymentReference(reservation.getPaymentReference())
-                .createdAt(reservation.getCreatedAt())
-                .build();
+        SpaceBasicInfo spaceBasicInfo = new SpaceBasicInfo(
+                reservation.getSpace().getId(),
+                reservation.getSpace().getName(),
+                reservation.getSpace().getLocation()
+        );
+
+        UserBasicInfo userBasicInfo = new UserBasicInfo(
+                reservation.getUser().getId(),
+                reservation.getUser().getUsername(),
+                reservation.getUser().getEmail()
+        );
+
+        return new ReservationResponse(
+                reservation.getId(),
+                spaceBasicInfo,
+                userBasicInfo,
+                reservation.getDate(),
+                reservation.getStartTime(),
+                reservation.getEndTime(),
+                reservation.getStatus(),
+                reservation.getTotalPrice(),
+                reservation.getPaymentReference(),
+                reservation.getCreatedAt()
+        );
     }
 }
