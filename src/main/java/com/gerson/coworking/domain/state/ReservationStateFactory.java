@@ -4,7 +4,6 @@ import com.gerson.coworking.domain.enums.ReservationStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Component
 public class ReservationStateFactory {
@@ -13,11 +12,13 @@ public class ReservationStateFactory {
 
     public ReservationStateFactory(PendingPaymentState pendingState,
                                   ConfirmedState confirmedState,
-                                  CancelledState cancelledState) {
+                                  CancelledState cancelledState,
+                                  CompletedState completedState) {
         this.states = Map.of(
                 ReservationStatus.PENDING_PAYMENT, pendingState,
                 ReservationStatus.CONFIRMED, confirmedState,
-                ReservationStatus.CANCELLED, cancelledState
+                ReservationStatus.CANCELLED, cancelledState,
+                ReservationStatus.COMPLETED, completedState
         );
     }
 

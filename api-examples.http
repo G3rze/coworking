@@ -1,0 +1,162 @@
+@baseUrl = http://localhost:8080
+
+### ================================
+### VARIABLES - Cambiar aqui
+### ================================
+@adminUsername = admin
+@adminPassword = admin123
+@adminToken = AQUÍ_PEGA_EL_TOKEN_ADMIN
+
+@userUsername = user
+@userPassword = user123
+@userToken = AQUÍ_PEGA_EL_TOKEN_USER
+
+@spaceId = 660e8400-e29b-41d4-a716-446655440001
+@reservationId = 1
+@userId = 550e8400-e29b-41d4-a716-446655440002
+### ================================
+
+### 1. Autenticación
+
+### Login Admin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{"username": "{{adminUsername}}", "password": "{{adminPassword}}"}
+
+### Login User
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{"username": "{{userUsername}}", "password": "{{userPassword}}"}
+
+### 2. Espacios
+
+### Get all spaces (ADMIN y USER)
+GET {{baseUrl}}/api/v1/spaces
+Authorization: Bearer {{adminToken}}
+
+### Get space by ID (ADMIN y USER)
+GET {{baseUrl}}/api/v1/spaces/{{spaceId}}
+Authorization: Bearer {{adminToken}}
+
+### Create space (ADMIN)
+POST {{baseUrl}}/api/v1/spaces
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Sala de Juntas A",
+  "description": "Sala para 10 personas con proyector",
+  "capacity": 10,
+  "location": "Piso 2, Torre A",
+  "pricePerHour": 50.00
+}
+
+### Update space (ADMIN)
+PUT {{baseUrl}}/api/v1/spaces/{{spaceId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "name": "Sala de Juntas A - Actualizada",
+  "description": "Sala renovada con pantalla 4K",
+  "capacity": 12,
+  "location": "Piso 3, Torre A",
+  "pricePerHour": 75.00,
+  "status": "AVAILABLE"
+}
+
+### Delete space (ADMIN)
+DELETE {{baseUrl}}/api/v1/spaces/{{spaceId}}
+Authorization: Bearer {{adminToken}}
+
+### 3. Usuarios
+
+### Get all users (ADMIN)
+GET {{baseUrl}}/api/v1/users
+Authorization: Bearer {{adminToken}}
+
+### Create user
+POST {{baseUrl}}/api/v1/users
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "password": "password123",
+  "role": "USER"
+}
+
+### 4. Reservas
+
+### Create reservation (USER)
+POST {{baseUrl}}/api/v1/reservations
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "spaceId": "{{spaceId}}",
+  "date": "2026-07-20",
+  "startTime": "09:00",
+  "endTime": "11:00"
+}
+
+### Get all reservations (ADMIN)
+GET {{baseUrl}}/api/v1/reservations
+Authorization: Bearer {{adminToken}}
+
+### Get reservation by ID
+GET {{baseUrl}}/api/v1/reservations/{{reservationId}}
+Authorization: Bearer {{userToken}}
+
+### Get reservations by user
+GET {{baseUrl}}/api/v1/reservations/user/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### Filter reservations
+GET {{baseUrl}}/api/v1/reservations/filter?spaceId={{spaceId}}&dateFrom=2026-07-01&dateTo=2026-07-31
+Authorization: Bearer {{adminToken}}
+
+### Confirm reservation (triggers payment validation) - ADMIN
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/confirm
+Authorization: Bearer {{adminToken}}
+
+### Complete reservation (after end time) - ADMIN
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/complete
+Authorization: Bearer {{adminToken}}
+
+### Cancel reservation (USER: own | ADMIN: all)
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/cancel
+Authorization: Bearer {{userToken}}
+
+### 5. Reportes (ADMIN)
+
+### Occupancy report
+GET {{baseUrl}}/api/v1/reports/occupancy?dateFrom=2026-07-01&dateTo=2026-07-31
+Authorization: Bearer {{adminToken}}
+
+### 6. Health & Actuator
+
+### Health check
+GET {{baseUrl}}/actuator/health
+
+### Circuit breakers status
+GET {{baseUrl}}/actuator/circuitbreakers
+
+### Circuit breaker events
+GET {{baseUrl}}/actuator/circuitbreakerevents
+
+### Metrics
+GET {{baseUrl}}/actuator/metrics
+
+### Prometheus metrics
+GET {{baseUrl}}/actuator/prometheus
+
+### 7. Swagger/OpenAPI
+
+### OpenAPI JSON
+GET {{baseUrl}}/v3/api-docs
+
+### Swagger UI
+GET {{baseUrl}}/swagger-ui/index.html

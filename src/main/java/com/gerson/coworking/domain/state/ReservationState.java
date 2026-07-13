@@ -11,7 +11,11 @@ public interface ReservationState {
 
     boolean canCancel();
 
+    boolean canComplete();
+
     Reservation confirm(Reservation reservation);
 
     Reservation cancel(Reservation reservation);
+
+    Reservation complete(Reservation reservation);
 }

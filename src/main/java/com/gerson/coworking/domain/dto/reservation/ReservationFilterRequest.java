@@ -1,22 +1,22 @@
 package com.gerson.coworking.domain.dto.reservation;
 
 import com.gerson.coworking.domain.enums.ReservationStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ReservationFilterRequest {
+@Schema(description = "Reservation filter criteria for searching")
+public record ReservationFilterRequest(
+        @Schema(description = "Filter by space ID", example = "550e8400-e29b-41d4-a716-446655440000")
+        UUID spaceId,
 
-    private UUID spaceId;
-    private LocalDate dateFrom;
-    private LocalDate dateTo;
-    private ReservationStatus status;
-}
+        @Schema(description = "Filter reservations from this date (inclusive)", example = "2026-07-01")
+        LocalDate dateFrom,
+
+        @Schema(description = "Filter reservations until this date (inclusive)", example = "2026-07-31")
+        LocalDate dateTo,
+
+        @Schema(description = "Filter by reservation status", example = "CONFIRMED")
+        ReservationStatus status
+) {}

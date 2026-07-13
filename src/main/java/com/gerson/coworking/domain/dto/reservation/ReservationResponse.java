@@ -1,51 +1,43 @@
 package com.gerson.coworking.domain.dto.reservation;
 
 import com.gerson.coworking.domain.enums.ReservationStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ReservationResponse {
+@Schema(description = "Reservation information response")
+public record ReservationResponse(
+        @Schema(description = "Reservation unique identifier")
+        UUID id,
 
-    private UUID id;
-    private SpaceBasicInfo space;
-    private UserBasicInfo user;
-    private LocalDate date;
-    private LocalTime startTime;
-    private LocalTime endTime;
-    private ReservationStatus status;
-    private BigDecimal totalPrice;
-    private String paymentReference;
-    private Instant createdAt;
+        @Schema(description = "Reserved space information")
+        SpaceBasicInfo space,
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class SpaceBasicInfo {
-        private UUID id;
-        private String name;
-        private String location;
-    }
+        @Schema(description = "User who made the reservation")
+        UserBasicInfo user,
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class UserBasicInfo {
-        private UUID id;
-        private String username;
-        private String email;
-    }
-}
+        @Schema(description = "Reservation date")
+        LocalDate date,
+
+        @Schema(description = "Start time")
+        LocalTime startTime,
+
+        @Schema(description = "End time")
+        LocalTime endTime,
+
+        @Schema(description = "Current reservation status")
+        ReservationStatus status,
+
+        @Schema(description = "Total price calculated for this reservation")
+        BigDecimal totalPrice,
+
+        @Schema(description = "Payment reference code (if payment has been processed)")
+        String paymentReference,
+
+        @Schema(description = "Reservation creation timestamp in America/El_Salvador timezone")
+        ZonedDateTime createdAt
+) {}

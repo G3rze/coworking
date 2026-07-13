@@ -1,35 +1,33 @@
 package com.gerson.coworking.domain.dto.space;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SpaceCreateRequest {
+@Schema(description = "Space creation request")
+public record SpaceCreateRequest(
+        @Schema(description = "Space name (max 100 characters)", example = "Conference Room A")
+        @NotBlank(message = "Name is required")
+        @Size(max = 100, message = "Name must be at most 100 characters")
+        String name,
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 100, message = "Name must be at most 100 characters")
-    private String name;
+        @Schema(description = "Space description (max 500 characters)", example = "Large meeting room with projector")
+        @Size(max = 500, message = "Description must be at most 500 characters")
+        String description,
 
-    @Size(max = 500, message = "Description must be at most 500 characters")
-    private String description;
+        @Schema(description = "Maximum capacity (minimum 1)", example = "10")
+        @NotNull(message = "Capacity is required")
+        @Min(value = 1, message = "Capacity must be at least 1")
+        Integer capacity,
 
-    @NotNull(message = "Capacity is required")
-    @Min(value = 1, message = "Capacity must be at least 1")
-    private Integer capacity;
+        @Schema(description = "Physical location of the space", example = "Floor 2, Building A")
+        @NotBlank(message = "Location is required")
+        @Size(max = 200, message = "Location must be at most 200 characters")
+        String location,
 
-    @NotBlank(message = "Location is required")
-    @Size(max = 200, message = "Location must be at most 200 characters")
-    private String location;
-
-    @NotNull(message = "Price per hour is required")
-    @DecimalMin(value = "0.01", message = "Price per hour must be greater than 0")
-    private BigDecimal pricePerHour;
-}
+        @Schema(description = "Price per hour in USD", example = "25.00")
+        @NotNull(message = "Price per hour is required")
+        @DecimalMin(value = "0.01", message = "Price per hour must be greater than 0")
+        BigDecimal pricePerHour
+) {}

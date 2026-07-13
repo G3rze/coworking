@@ -1,18 +1,15 @@
 package com.gerson.coworking.domain.dto.auth;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class LoginRequest {
+@Schema(description = "Login request payload")
+public record LoginRequest(
+        @Schema(description = "Username of the user", example = "admin")
+        @NotBlank(message = "Username is required")
+        String username,
 
-    @NotBlank(message = "Username is required")
-    private String username;
-
-    @NotBlank(message = "Password is required")
-    private String password;
-}
+        @Schema(description = "Password of the user", example = "admin123")
+        @NotBlank(message = "Password is required")
+        String password
+) {}

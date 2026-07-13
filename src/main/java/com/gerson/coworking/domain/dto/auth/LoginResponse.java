@@ -1,20 +1,24 @@
 package com.gerson.coworking.domain.dto.auth;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class LoginResponse {
+@Schema(description = "Login response with JWT token")
+public record LoginResponse(
+        @Schema(description = "JWT access token", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+        String token,
 
-    private String token;
+        @Schema(description = "Token type", example = "Bearer")
+        String type,
 
-    @Builder.Default
-    private String type = "Bearer";
+        @Schema(description = "Token expiration time in milliseconds", example = "86400000")
+        Long expiresIn,
 
-    private Long expiresIn;
+        @Schema(description = "Authenticated user information")
+        UserInfo user
+) {
+    public LoginResponse {
+        if (type == null) {
+            type = "Bearer";
+        }
+    }
 }

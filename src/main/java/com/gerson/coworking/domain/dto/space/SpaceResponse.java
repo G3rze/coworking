@@ -1,27 +1,35 @@
 package com.gerson.coworking.domain.dto.space;
 
 import com.gerson.coworking.domain.enums.SpaceStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class SpaceResponse {
+@Schema(description = "Space information response")
+public record SpaceResponse(
+        @Schema(description = "Space unique identifier")
+        UUID id,
 
-    private UUID id;
-    private String name;
-    private String description;
-    private Integer capacity;
-    private String location;
-    private BigDecimal pricePerHour;
-    private SpaceStatus status;
-    private Instant createdAt;
-}
+        @Schema(description = "Space name")
+        String name,
+
+        @Schema(description = "Space description")
+        String description,
+
+        @Schema(description = "Maximum capacity")
+        Integer capacity,
+
+        @Schema(description = "Physical location")
+        String location,
+
+        @Schema(description = "Price per hour in USD")
+        BigDecimal pricePerHour,
+
+        @Schema(description = "Current availability status")
+        SpaceStatus status,
+
+        @Schema(description = "Creation timestamp in America/El_Salvador timezone")
+        ZonedDateTime createdAt
+) {}

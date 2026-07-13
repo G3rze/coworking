@@ -23,6 +23,11 @@ public class CancelledState implements ReservationState {
     }
 
     @Override
+    public boolean canComplete() {
+        return false;
+    }
+
+    @Override
     public Reservation confirm(Reservation reservation) {
         throw new IllegalStateException("Cannot confirm a cancelled reservation");
     }
@@ -30,5 +35,10 @@ public class CancelledState implements ReservationState {
     @Override
     public Reservation cancel(Reservation reservation) {
         throw new IllegalStateException("Reservation is already cancelled");
+    }
+
+    @Override
+    public Reservation complete(Reservation reservation) {
+        throw new IllegalStateException("Cannot complete a cancelled reservation");
     }
 }

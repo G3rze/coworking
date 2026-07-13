@@ -32,8 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
-### Guide PDF ###
-'Prueba Tecnica Backend 2026.pdf'1.
-
 ### ENV ###
 .env
+prod.env
+
+### PDF ###
+"Prueba Tecnica Backend 2026.pdf"
