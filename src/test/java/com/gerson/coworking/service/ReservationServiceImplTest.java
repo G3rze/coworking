@@ -11,6 +11,7 @@ import com.gerson.coworking.domain.enums.Role;
 import com.gerson.coworking.domain.mapper.ReservationMapper;
 import com.gerson.coworking.domain.state.ReservationState;
 import com.gerson.coworking.domain.state.ReservationStateFactory;
+import com.gerson.coworking.domain.strategy.PricingStrategy;
 import com.gerson.coworking.exception.OverlappingReservationException;
 import com.gerson.coworking.exception.ResourceNotFoundException;
 import com.gerson.coworking.repository.ReservationRepository;
@@ -70,6 +71,9 @@ class ReservationServiceImplTest {
     private ApplicationEventPublisher eventPublisher;
 
     @Mock
+    private PricingStrategy pricingStrategy;
+
+    @Mock
     private Counter reservationsCreatedCounter;
 
     @Mock
@@ -102,6 +106,8 @@ class ReservationServiceImplTest {
     void setUp() {
         activeReservationsGaugeValue = new AtomicLong(0);
 
+        reset(spaceRepository, userRepository, reservationRepository, paymentService, pricingStrategy);
+
         lenient().when(reservationCreationTimer.record(any(java.util.function.Supplier.class))).thenAnswer(invocation -> {
             Supplier<?> supplier = invocation.getArgument(0);
             return supplier.get();
@@ -120,6 +126,7 @@ class ReservationServiceImplTest {
                 stateFactory,
                 zoneIdProvider,
                 eventPublisher,
+                pricingStrategy,
                 reservationsCreatedCounter,
                 reservationsConfirmedCounter,
                 reservationsCancelledCounter,
@@ -176,9 +183,11 @@ class ReservationServiceImplTest {
             );
 
             when(zoneIdProvider.getZoneId()).thenReturn(testZone);
-            when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
-            when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
-            when(reservationRepository.existsConflictingReservation(any(), any(), any(), any())).thenReturn(false);
+            lenient().when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
+            lenient().when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            lenient().when(pricingStrategy.calculatePrice(any(BigDecimal.class), any(LocalTime.class), any(LocalTime.class)))
+                    .thenReturn(new BigDecimal("75.00"));
+            lenient().when(reservationRepository.existsConflictingReservation(any(), any(), any(), any())).thenReturn(false);
             when(reservationRepository.save(any(Reservation.class))).thenReturn(testReservation);
 
             ReservationResponse result = reservationService.create(testUserId, request);
@@ -204,7 +213,8 @@ class ReservationServiceImplTest {
                     LocalTime.of(12, 0)
             );
 
-            when(spaceRepository.findById(nonExistentSpaceId)).thenReturn(Optional.empty());
+            lenient().when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            lenient().when(spaceRepository.findById(nonExistentSpaceId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> reservationService.create(testUserId, request))
                     .isInstanceOf(ResourceNotFoundException.class)
@@ -222,8 +232,7 @@ class ReservationServiceImplTest {
                     LocalTime.of(12, 0)
             );
 
-            when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
-            when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
+            lenient().when(userRepository.findById(nonExistentUserId)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() -> reservationService.create(nonExistentUserId, request))
                     .isInstanceOf(ResourceNotFoundException.class)
@@ -240,7 +249,8 @@ class ReservationServiceImplTest {
                     LocalTime.of(10, 0)
             );
 
-            when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
+            lenient().when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            lenient().when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
 
             assertThatThrownBy(() -> reservationService.create(testUserId, request))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -257,7 +267,8 @@ class ReservationServiceImplTest {
                     LocalTime.of(10, 0)
             );
 
-            when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
+            lenient().when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            lenient().when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
 
             assertThatThrownBy(() -> reservationService.create(testUserId, request))
                     .isInstanceOf(IllegalArgumentException.class)
@@ -274,8 +285,9 @@ class ReservationServiceImplTest {
                     LocalTime.of(12, 0)
             );
 
-            when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
-            when(reservationRepository.existsConflictingReservation(any(), any(), any(), any())).thenReturn(true);
+            lenient().when(userRepository.findById(testUserId)).thenReturn(Optional.of(testUser));
+            lenient().when(spaceRepository.findById(testSpaceId)).thenReturn(Optional.of(testSpace));
+            lenient().when(reservationRepository.existsConflictingReservation(any(), any(), any(), any())).thenReturn(true);
 
             assertThatThrownBy(() -> reservationService.create(testUserId, request))
                     .isInstanceOf(OverlappingReservationException.class);

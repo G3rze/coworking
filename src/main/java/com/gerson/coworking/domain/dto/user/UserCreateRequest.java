@@ -25,14 +25,4 @@ public record UserCreateRequest(
         @Schema(description = "User role", example = "USER")
         @NotNull(message = "Role is required")
         Role role
-) {
-    public UserCreateRequest {
-        if (password != null && password.length() > 0) {
-            String pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
-            if (!password.matches(pattern)) {
-                throw new IllegalArgumentException(
-                        "Password must contain at least 1 uppercase, 1 lowercase, 1 digit, and 1 special character");
-            }
-        }
-    }
-}
+) {}

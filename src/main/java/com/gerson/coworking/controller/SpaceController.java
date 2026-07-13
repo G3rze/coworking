@@ -4,6 +4,8 @@ import com.gerson.coworking.domain.dto.space.SpaceCreateRequest;
 import com.gerson.coworking.domain.dto.space.SpaceResponse;
 import com.gerson.coworking.domain.dto.space.SpaceUpdateRequest;
 import com.gerson.coworking.domain.enums.SpaceStatus;
+import com.gerson.coworking.exception.ErrorResponse;
+import com.gerson.coworking.exception.ResourceNotFoundException;
 import com.gerson.coworking.service.SpaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;         
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/spaces")
+@RequestMapping("/api/v1/spaces")
 @Tag(name = "Spaces", description = "Coworking space management operations")
 @SecurityRequirement(name = "bearerAuth")
 public class SpaceController {
@@ -48,14 +50,14 @@ public class SpaceController {
             @ApiResponse(responseCode = "200", description = "Space found",
                     content = @Content(schema = @Schema(implementation = SpaceResponse.class))),
             @ApiResponse(responseCode = "404", description = "Space not found",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{id}")
     public ResponseEntity<SpaceResponse> getSpaceById(
             @Parameter(description = "Space unique identifier") @PathVariable UUID id) {
         return spaceService.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new com.gerson.coworking.exception.ResourceNotFoundException("Space", "id", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Space", "id", id));
     }
 
     @Operation(summary = "Filter spaces", description = "Search and filter spaces by status, minimum capacity, and/or location")
@@ -75,11 +77,11 @@ public class SpaceController {
             @ApiResponse(responseCode = "201", description = "Space created successfully",
                     content = @Content(schema = @Schema(implementation = SpaceResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "401", description = "Authentication required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied - admin role required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -93,11 +95,11 @@ public class SpaceController {
             @ApiResponse(responseCode = "200", description = "Space updated successfully",
                     content = @Content(schema = @Schema(implementation = SpaceResponse.class))),
             @ApiResponse(responseCode = "404", description = "Space not found",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied - admin role required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -111,9 +113,9 @@ public class SpaceController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Space deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Space not found",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied - admin role required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

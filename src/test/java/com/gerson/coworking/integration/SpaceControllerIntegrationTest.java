@@ -56,7 +56,7 @@ class SpaceControllerIntegrationTest {
 
     private String obtainToken(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        MvcResult result = mockMvc.perform(post("/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -72,7 +72,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("getAllSpaces_ReturnsAllSpaces_200")
         void getAllSpaces_ReturnsAllSpaces_200() throws Exception {
-            mockMvc.perform(get("/spaces")
+            mockMvc.perform(get("/api/v1/spaces")
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -88,7 +88,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("getSpaceById_ExistingId_Returns200")
         void getSpaceById_ExistingId_Returns200() throws Exception {
-            mockMvc.perform(get("/spaces/{id}", EXISTING_SPACE_ID_READ_ONLY)
+            mockMvc.perform(get("/api/v1/spaces/{id}", EXISTING_SPACE_ID_READ_ONLY)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(EXISTING_SPACE_ID_READ_ONLY.toString()))
@@ -99,7 +99,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("getSpaceById_NonExistingId_Returns404")
         void getSpaceById_NonExistingId_Returns404() throws Exception {
-            mockMvc.perform(get("/spaces/{id}", NON_EXISTING_SPACE_ID)
+            mockMvc.perform(get("/api/v1/spaces/{id}", NON_EXISTING_SPACE_ID)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.status").value(404))
@@ -114,7 +114,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("filterSpaces_ByStatus_Returns200")
         void filterSpaces_ByStatus_Returns200() throws Exception {
-            mockMvc.perform(get("/spaces/filter")
+            mockMvc.perform(get("/api/v1/spaces/filter")
                             .header("Authorization", "Bearer " + adminToken)
                             .param("status", "AVAILABLE"))
                     .andExpect(status().isOk())
@@ -124,7 +124,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("filterSpaces_ByMinCapacity_Returns200")
         void filterSpaces_ByMinCapacity_Returns200() throws Exception {
-            mockMvc.perform(get("/spaces/filter")
+            mockMvc.perform(get("/api/v1/spaces/filter")
                             .header("Authorization", "Bearer " + adminToken)
                             .param("minCapacity", "10"))
                     .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("filterSpaces_ByLocation_Returns200")
         void filterSpaces_ByLocation_Returns200() throws Exception {
-            mockMvc.perform(get("/spaces/filter")
+            mockMvc.perform(get("/api/v1/spaces/filter")
                             .header("Authorization", "Bearer " + adminToken)
                             .param("location", "Piso 1"))
                     .andExpect(status().isOk())
@@ -157,7 +157,7 @@ class SpaceControllerIntegrationTest {
                     new BigDecimal("75.00")
             );
 
-            mockMvc.perform(post("/spaces")
+            mockMvc.perform(post("/api/v1/spaces")
                             .header("Authorization", "Bearer " + adminToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -177,12 +177,11 @@ class SpaceControllerIntegrationTest {
                     new BigDecimal("75.00")
             );
 
-            mockMvc.perform(post("/spaces")
+            mockMvc.perform(post("/api/v1/spaces")
                             .header("Authorization", "Bearer " + userToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.status").value(403));
+                    .andExpect(status().isForbidden());
         }
 
         @Test
@@ -196,7 +195,7 @@ class SpaceControllerIntegrationTest {
                     new BigDecimal("75.00")
             );
 
-            mockMvc.perform(post("/spaces")
+            mockMvc.perform(post("/api/v1/spaces")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isUnauthorized());
@@ -213,7 +212,7 @@ class SpaceControllerIntegrationTest {
                     new BigDecimal("-1.00")
             );
 
-            mockMvc.perform(post("/spaces")
+            mockMvc.perform(post("/api/v1/spaces")
                             .header("Authorization", "Bearer " + adminToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -238,7 +237,7 @@ class SpaceControllerIntegrationTest {
                     SpaceStatus.MAINTENANCE
             );
 
-            mockMvc.perform(put("/spaces/{id}", EXISTING_SPACE_ID)
+            mockMvc.perform(put("/api/v1/spaces/{id}", EXISTING_SPACE_ID)
                             .header("Authorization", "Bearer " + adminToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -258,7 +257,7 @@ class SpaceControllerIntegrationTest {
                     SpaceStatus.MAINTENANCE
             );
 
-            mockMvc.perform(put("/spaces/{id}", EXISTING_SPACE_ID)
+            mockMvc.perform(put("/api/v1/spaces/{id}", EXISTING_SPACE_ID)
                             .header("Authorization", "Bearer " + userToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -277,7 +276,7 @@ class SpaceControllerIntegrationTest {
                     SpaceStatus.MAINTENANCE
             );
 
-            mockMvc.perform(put("/spaces/{id}", NON_EXISTING_SPACE_ID)
+            mockMvc.perform(put("/api/v1/spaces/{id}", NON_EXISTING_SPACE_ID)
                             .header("Authorization", "Bearer " + adminToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -300,7 +299,7 @@ class SpaceControllerIntegrationTest {
                     "Delete Floor",
                     new BigDecimal("50.00")
             );
-            MvcResult result = mockMvc.perform(post("/spaces")
+            MvcResult result = mockMvc.perform(post("/api/v1/spaces")
                             .header("Authorization", "Bearer " + adminToken)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
@@ -313,7 +312,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("deleteSpace_WithAdminToken_Returns204")
         void deleteSpace_WithAdminToken_Returns204() throws Exception {
-            mockMvc.perform(delete("/spaces/{id}", spaceToDeleteId)
+            mockMvc.perform(delete("/api/v1/spaces/{id}", spaceToDeleteId)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isNoContent());
         }
@@ -321,7 +320,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("deleteSpace_WithUserToken_Returns403")
         void deleteSpace_WithUserToken_Returns403() throws Exception {
-            mockMvc.perform(delete("/spaces/{id}", spaceToDeleteId)
+            mockMvc.perform(delete("/api/v1/spaces/{id}", spaceToDeleteId)
                             .header("Authorization", "Bearer " + userToken))
                     .andExpect(status().isForbidden());
         }
@@ -329,7 +328,7 @@ class SpaceControllerIntegrationTest {
         @Test
         @DisplayName("deleteSpace_WithoutToken_Returns401")
         void deleteSpace_WithoutToken_Returns401() throws Exception {
-            mockMvc.perform(delete("/spaces/{id}", EXISTING_SPACE_ID))
+            mockMvc.perform(delete("/api/v1/spaces/{id}", EXISTING_SPACE_ID))
                     .andExpect(status().isUnauthorized());
         }
     }

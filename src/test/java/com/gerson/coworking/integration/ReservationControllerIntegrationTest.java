@@ -64,7 +64,7 @@ class ReservationControllerIntegrationTest {
 
     private String obtainToken(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        MvcResult result = mockMvc.perform(post("/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -74,13 +74,13 @@ class ReservationControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /reservations")
+    @DisplayName("GET /api/v1/reservations")
     class GetAllReservations {
 
         @Test
         @DisplayName("getAllReservations_WithAdminToken_Returns200")
         void getAllReservations_WithAdminToken_Returns200() throws Exception {
-            mockMvc.perform(get("/reservations")
+            mockMvc.perform(get("/api/v1/reservations")
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray());
@@ -89,7 +89,7 @@ class ReservationControllerIntegrationTest {
         @Test
         @DisplayName("getAllReservations_WithUserToken_Returns403")
         void getAllReservations_WithUserToken_Returns403() throws Exception {
-            mockMvc.perform(get("/reservations")
+            mockMvc.perform(get("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken))
                     .andExpect(status().isForbidden());
         }
@@ -97,19 +97,19 @@ class ReservationControllerIntegrationTest {
         @Test
         @DisplayName("getAllReservations_WithoutToken_Returns401")
         void getAllReservations_WithoutToken_Returns401() throws Exception {
-            mockMvc.perform(get("/reservations"))
+            mockMvc.perform(get("/api/v1/reservations"))
                     .andExpect(status().isUnauthorized());
         }
     }
 
     @Nested
-    @DisplayName("GET /reservations/{id}")
+    @DisplayName("GET /api/v1/reservations/{id}")
     class GetReservationById {
 
         @Test
         @DisplayName("getReservationById_NonExistingId_Returns404")
         void getReservationById_NonExistingId_Returns404() throws Exception {
-            mockMvc.perform(get("/reservations/{id}", NON_EXISTING_RESERVATION_ID)
+            mockMvc.perform(get("/api/v1/reservations/{id}", NON_EXISTING_RESERVATION_ID)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.status").value(404));
@@ -117,13 +117,13 @@ class ReservationControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("GET /reservations/user/{userId}")
+    @DisplayName("GET /api/v1/reservations/user/{userId}")
     class GetReservationsByUser {
 
         @Test
         @DisplayName("getReservationsByUser_ExistingUser_Returns200")
         void getReservationsByUser_ExistingUser_Returns200() throws Exception {
-            mockMvc.perform(get("/reservations/user/{userId}", REGULAR_USER_ID)
+            mockMvc.perform(get("/api/v1/reservations/user/{userId}", REGULAR_USER_ID)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray());
@@ -133,7 +133,7 @@ class ReservationControllerIntegrationTest {
         @DisplayName("getReservationsByUser_NonExistingUser_Returns200")
         void getReservationsByUser_NonExistingUser_Returns200() throws Exception {
             UUID nonExistingUserId = UUID.fromString("999e8400-e29b-41d4-a716-446655440999");
-            mockMvc.perform(get("/reservations/user/{userId}", nonExistingUserId)
+            mockMvc.perform(get("/api/v1/reservations/user/{userId}", nonExistingUserId)
                             .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$").isArray())
@@ -142,7 +142,7 @@ class ReservationControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /reservations")
+    @DisplayName("POST /api/v1/reservations")
     class CreateReservation {
 
         @Test
@@ -155,9 +155,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(17, 0)
             );
 
-            mockMvc.perform(post("/reservations")
+            mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isCreated())
@@ -175,9 +174,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(17, 0)
             );
 
-            mockMvc.perform(post("/reservations")
+            mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isNotFound())
@@ -194,9 +192,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(14, 0)
             );
 
-            mockMvc.perform(post("/reservations")
+            mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -213,8 +210,7 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(17, 0)
             );
 
-            mockMvc.perform(post("/reservations")
-                            .param("userId", REGULAR_USER_ID.toString())
+            mockMvc.perform(post("/api/v1/reservations")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isUnauthorized());
@@ -231,9 +227,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(12, 0)
             );
 
-            mockMvc.perform(post("/reservations")
+            mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request1)))
                     .andExpect(status().isCreated());
@@ -245,9 +240,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(13, 0)
             );
 
-            mockMvc.perform(post("/reservations")
+            mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request2)))
                     .andExpect(status().isConflict())
@@ -256,28 +250,28 @@ class ReservationControllerIntegrationTest {
     }
 
     @Nested
-    @DisplayName("POST /reservations/{id}/confirm")
+    @DisplayName("POST /api/v1/reservations/{id}/confirm")
     class ConfirmReservation {
 
         @Test
         @DisplayName("confirmReservation_NonExisting_Returns404")
         void confirmReservation_NonExisting_Returns404() throws Exception {
-            mockMvc.perform(post("/reservations/{id}/confirm", NON_EXISTING_RESERVATION_ID)
-                            .header("Authorization", "Bearer " + userToken))
+            mockMvc.perform(post("/api/v1/reservations/{id}/confirm", NON_EXISTING_RESERVATION_ID)
+                            .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.status").value(404));
         }
     }
 
     @Nested
-    @DisplayName("POST /reservations/{id}/cancel")
+    @DisplayName("POST /api/v1/reservations/{id}/cancel")
     class CancelReservation {
 
         @Test
         @DisplayName("cancelReservation_NonExisting_Returns404")
         void cancelReservation_NonExisting_Returns404() throws Exception {
-            mockMvc.perform(post("/reservations/{id}/cancel", NON_EXISTING_RESERVATION_ID)
-                            .header("Authorization", "Bearer " + userToken))
+            mockMvc.perform(post("/api/v1/reservations/{id}/cancel", NON_EXISTING_RESERVATION_ID)
+                            .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isNotFound())
                     .andExpect(jsonPath("$.status").value(404));
         }
@@ -298,9 +292,8 @@ class ReservationControllerIntegrationTest {
                     LocalTime.of(10, 0)
             );
 
-            MvcResult createResult = mockMvc.perform(post("/reservations")
+            MvcResult createResult = mockMvc.perform(post("/api/v1/reservations")
                             .header("Authorization", "Bearer " + userToken)
-                            .param("userId", REGULAR_USER_ID.toString())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(createRequest)))
                     .andExpect(status().isCreated())
@@ -310,12 +303,12 @@ class ReservationControllerIntegrationTest {
             String createResponseBody = createResult.getResponse().getContentAsString();
             UUID reservationId = UUID.fromString(objectMapper.readTree(createResponseBody).get("id").asText());
 
-            mockMvc.perform(post("/reservations/{id}/confirm", reservationId)
-                            .header("Authorization", "Bearer " + userToken))
+            mockMvc.perform(post("/api/v1/reservations/{id}/confirm", reservationId)
+                            .header("Authorization", "Bearer " + adminToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("CONFIRMED"));
 
-            mockMvc.perform(post("/reservations/{id}/cancel", reservationId)
+            mockMvc.perform(post("/api/v1/reservations/{id}/cancel", reservationId)
                             .header("Authorization", "Bearer " + userToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.status").value("CANCELLED"));

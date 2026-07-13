@@ -4,6 +4,7 @@ import com.gerson.coworking.security.JwtAuthenticationEntryPoint;
 import com.gerson.coworking.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,13 +35,16 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(jwtEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/circuitbreakers").permitAll()
-                        .requestMatchers("/spaces/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/reservations/**").hasAnyRole("ADMIN", "USER")
-                        .requestMatchers("/reports/**").hasRole("ADMIN")
-                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/spaces/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/spaces/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/spaces/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/v1/spaces/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/reservations/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/api/v1/reports/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

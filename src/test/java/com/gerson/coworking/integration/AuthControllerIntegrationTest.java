@@ -40,7 +40,7 @@ class AuthControllerIntegrationTest {
         void login_ValidAdminCredentials_ReturnsToken_200() throws Exception {
             LoginRequest request = new LoginRequest("admin", "admin123");
 
-            MvcResult result = mockMvc.perform(post("/auth/login")
+            MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -59,7 +59,7 @@ class AuthControllerIntegrationTest {
         void login_ValidUserCredentials_ReturnsToken_200() throws Exception {
             LoginRequest request = new LoginRequest("user", "user123");
 
-            MvcResult result = mockMvc.perform(post("/auth/login")
+            MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class AuthControllerIntegrationTest {
         void login_InvalidUsername_Returns400() throws Exception {
             LoginRequest request = new LoginRequest("nonexistent", "admin123");
 
-            mockMvc.perform(post("/auth/login")
+            mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -90,7 +90,7 @@ class AuthControllerIntegrationTest {
         void login_InvalidPassword_Returns400() throws Exception {
             LoginRequest request = new LoginRequest("admin", "wrongpassword");
 
-            mockMvc.perform(post("/auth/login")
+            mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -103,7 +103,7 @@ class AuthControllerIntegrationTest {
         void login_MissingUsername_Returns400() throws Exception {
             LoginRequest request = new LoginRequest(null, "admin123");
 
-            mockMvc.perform(post("/auth/login")
+            mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -115,7 +115,7 @@ class AuthControllerIntegrationTest {
         void login_MissingPassword_Returns400() throws Exception {
             LoginRequest request = new LoginRequest("admin", null);
 
-            mockMvc.perform(post("/auth/login")
+            mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())
@@ -127,7 +127,7 @@ class AuthControllerIntegrationTest {
         void login_BlankUsername_Returns400() throws Exception {
             LoginRequest request = new LoginRequest("  ", "admin123");
 
-            mockMvc.perform(post("/auth/login")
+            mockMvc.perform(post("/api/v1/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isBadRequest())

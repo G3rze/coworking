@@ -4,6 +4,7 @@ import com.gerson.coworking.domain.dto.user.UserCreateRequest;
 import com.gerson.coworking.domain.dto.user.UserResponse;
 import com.gerson.coworking.domain.entity.User;
 import com.gerson.coworking.domain.mapper.UserMapper;
+import com.gerson.coworking.exception.ErrorResponse;
 import com.gerson.coworking.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,10 +19,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 @Tag(name = "Users", description = "User management operations")
 @SecurityRequirement(name = "bearerAuth")
 public class UserController {
@@ -37,21 +39,13 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "User created successfully",
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @ApiResponse(responseCode = "400", description = "Validation error or username/email already exists",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
-        if (userService.existsByUsername(request.username())) {
-            throw new IllegalArgumentException("Username already exists");
-        }
-        if (userService.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already exists");
-        }
-
         User user = userService.createUser(request);
-        UserResponse response = UserMapper.toResponse(user, java.time.ZoneId.of("America/El_Salvador"));
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(UserMapper.toResponse(user, ZoneId.of("America/El_Salvador")));
     }
 
     @Operation(summary = "Get all users", description = "Retrieves all registered users. Only administrators can access this endpoint.")

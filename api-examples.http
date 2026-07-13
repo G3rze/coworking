@@ -11,37 +11,37 @@
 @userPassword = user123
 @userToken = AQUÍ_PEGA_EL_TOKEN_USER
 
-@spaceId = 1
+@spaceId = 660e8400-e29b-41d4-a716-446655440001
 @reservationId = 1
-@userId = 1
+@userId = 550e8400-e29b-41d4-a716-446655440002
 ### ================================
 
 ### 1. Autenticación
 
 ### Login Admin
-POST {{baseUrl}}/auth/login
+POST {{baseUrl}}/api/v1/auth/login
 Content-Type: application/json
 
 {"username": "{{adminUsername}}", "password": "{{adminPassword}}"}
 
 ### Login User
-POST {{baseUrl}}/auth/login
+POST {{baseUrl}}/api/v1/auth/login
 Content-Type: application/json
 
 {"username": "{{userUsername}}", "password": "{{userPassword}}"}
 
 ### 2. Espacios
 
-### Get all spaces
-GET {{baseUrl}}/spaces
+### Get all spaces (ADMIN y USER)
+GET {{baseUrl}}/api/v1/spaces
 Authorization: Bearer {{adminToken}}
 
-### Get space by ID
-GET {{baseUrl}}/spaces/{{spaceId}}
+### Get space by ID (ADMIN y USER)
+GET {{baseUrl}}/api/v1/spaces/{{spaceId}}
 Authorization: Bearer {{adminToken}}
 
 ### Create space (ADMIN)
-POST {{baseUrl}}/spaces
+POST {{baseUrl}}/api/v1/spaces
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
@@ -54,7 +54,7 @@ Content-Type: application/json
 }
 
 ### Update space (ADMIN)
-PUT {{baseUrl}}/spaces/{{spaceId}}
+PUT {{baseUrl}}/api/v1/spaces/{{spaceId}}
 Authorization: Bearer {{adminToken}}
 Content-Type: application/json
 
@@ -68,17 +68,17 @@ Content-Type: application/json
 }
 
 ### Delete space (ADMIN)
-DELETE {{baseUrl}}/spaces/{{spaceId}}
+DELETE {{baseUrl}}/api/v1/spaces/{{spaceId}}
 Authorization: Bearer {{adminToken}}
 
 ### 3. Usuarios
 
 ### Get all users (ADMIN)
-GET {{baseUrl}}/users
+GET {{baseUrl}}/api/v1/users
 Authorization: Bearer {{adminToken}}
 
 ### Create user
-POST {{baseUrl}}/users
+POST {{baseUrl}}/api/v1/users
 Content-Type: application/json
 
 {
@@ -91,45 +91,49 @@ Content-Type: application/json
 ### 4. Reservas
 
 ### Create reservation (USER)
-POST {{baseUrl}}/reservations
+POST {{baseUrl}}/api/v1/reservations
 Authorization: Bearer {{userToken}}
 Content-Type: application/json
 
 {
-  "spaceId": {{spaceId}},
+  "spaceId": "{{spaceId}}",
   "date": "2026-07-20",
   "startTime": "09:00",
   "endTime": "11:00"
 }
 
 ### Get all reservations (ADMIN)
-GET {{baseUrl}}/reservations
+GET {{baseUrl}}/api/v1/reservations
 Authorization: Bearer {{adminToken}}
 
 ### Get reservation by ID
-GET {{baseUrl}}/reservations/{{reservationId}}
+GET {{baseUrl}}/api/v1/reservations/{{reservationId}}
 Authorization: Bearer {{userToken}}
 
 ### Get reservations by user
-GET {{baseUrl}}/reservations/user/{{userId}}
+GET {{baseUrl}}/api/v1/reservations/user/{{userId}}
 Authorization: Bearer {{userToken}}
 
 ### Filter reservations
-GET {{baseUrl}}/reservations/filter?spaceId={{spaceId}}&dateFrom=2026-07-01&dateTo=2026-07-31
+GET {{baseUrl}}/api/v1/reservations/filter?spaceId={{spaceId}}&dateFrom=2026-07-01&dateTo=2026-07-31
 Authorization: Bearer {{adminToken}}
 
-### Confirm reservation (triggers payment validation)
-POST {{baseUrl}}/reservations/{{reservationId}}/confirm
+### Confirm reservation (triggers payment validation) - ADMIN
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/confirm
+Authorization: Bearer {{adminToken}}
+
+### Complete reservation (after end time) - ADMIN
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/complete
+Authorization: Bearer {{adminToken}}
+
+### Cancel reservation (USER: own | ADMIN: all)
+POST {{baseUrl}}/api/v1/reservations/{{reservationId}}/cancel
 Authorization: Bearer {{userToken}}
 
-### Cancel reservation
-POST {{baseUrl}}/reservations/{{reservationId}}/cancel
-Authorization: Bearer {{userToken}}
+### 5. Reportes (ADMIN)
 
-### 5. Reportes
-
-### Occupancy report (ADMIN)
-GET {{baseUrl}}/reports/occupancy?dateFrom=2026-07-01&dateTo=2026-07-31
+### Occupancy report
+GET {{baseUrl}}/api/v1/reports/occupancy?dateFrom=2026-07-01&dateTo=2026-07-31
 Authorization: Bearer {{adminToken}}
 
 ### 6. Health & Actuator

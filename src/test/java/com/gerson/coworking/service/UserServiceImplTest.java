@@ -1,5 +1,6 @@
 package com.gerson.coworking.service;
 
+import com.gerson.coworking.config.AppProperties;
 import com.gerson.coworking.config.ZoneIdProvider;
 import com.gerson.coworking.domain.dto.user.UserCreateRequest;
 import com.gerson.coworking.domain.dto.user.UserResponse;
@@ -7,6 +8,7 @@ import com.gerson.coworking.domain.entity.User;
 import com.gerson.coworking.domain.enums.Role;
 import com.gerson.coworking.domain.mapper.UserMapper;
 import com.gerson.coworking.repository.UserRepository;
+import com.gerson.coworking.security.JwtTokenProvider;
 import com.gerson.coworking.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +42,12 @@ class UserServiceImplTest {
     @Mock
     private ZoneIdProvider zoneIdProvider;
 
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Mock
+    private AppProperties appProperties;
+
     private UserServiceImpl userService;
 
     private User testUser;
@@ -48,7 +56,7 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(userRepository, passwordEncoder, zoneIdProvider);
+        userService = new UserServiceImpl(userRepository, passwordEncoder, zoneIdProvider, jwtTokenProvider, appProperties);
 
         testUser = User.builder()
                 .id(testUserId)

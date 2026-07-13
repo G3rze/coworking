@@ -60,7 +60,7 @@ class NotificationEventIntegrationTest {
 
     private String obtainToken(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        MvcResult result = mockMvc.perform(post("/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -79,9 +79,8 @@ class NotificationEventIntegrationTest {
                 LocalTime.of(16, 0)
         );
 
-        MvcResult createResult = mockMvc.perform(post("/reservations")
+        MvcResult createResult = mockMvc.perform(post("/api/v1/reservations")
                         .header("Authorization", "Bearer " + userToken)
-                        .param("userId", REGULAR_USER_ID.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
@@ -90,8 +89,8 @@ class NotificationEventIntegrationTest {
         String reservationId = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .get("id").asText();
 
-        mockMvc.perform(post("/reservations/" + reservationId + "/confirm")
-                        .header("Authorization", "Bearer " + userToken))
+        mockMvc.perform(post("/api/v1/reservations/" + reservationId + "/confirm")
+                        .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CONFIRMED"));
     }
@@ -106,9 +105,8 @@ class NotificationEventIntegrationTest {
                 LocalTime.of(12, 0)
         );
 
-        MvcResult createResult = mockMvc.perform(post("/reservations")
+        MvcResult createResult = mockMvc.perform(post("/api/v1/reservations")
                         .header("Authorization", "Bearer " + userToken)
-                        .param("userId", REGULAR_USER_ID.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createRequest)))
                 .andExpect(status().isCreated())
@@ -117,7 +115,7 @@ class NotificationEventIntegrationTest {
         String reservationId = objectMapper.readTree(createResult.getResponse().getContentAsString())
                 .get("id").asText();
 
-        mockMvc.perform(post("/reservations/" + reservationId + "/cancel")
+        mockMvc.perform(post("/api/v1/reservations/" + reservationId + "/cancel")
                         .header("Authorization", "Bearer " + userToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("CANCELLED"));

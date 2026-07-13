@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.Duration;
 import java.util.UUID;
 
 @Entity
@@ -57,14 +56,6 @@ public class Reservation {
     @Column(name = "created_at", updatable = false)
     private Instant createdAt;
 
-    @PrePersist
-    public void calculateTotalPrice() {
-        if (space != null && startTime != null && endTime != null) {
-            long hours = Duration.between(startTime, endTime).toHours();
-            if (hours <= 0) {
-                hours = 1;
-            }
-            this.totalPrice = space.getPricePerHour().multiply(BigDecimal.valueOf(hours));
-        }
-    }
+    @Version
+    private Long version;
 }

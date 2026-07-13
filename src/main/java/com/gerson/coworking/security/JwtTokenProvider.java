@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
@@ -22,13 +23,14 @@ public class JwtTokenProvider {
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username, Role role) {
+    public String generateToken(String username, Role role, UUID userId) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + appProperties.getJwt().getExpiration());
 
         return Jwts.builder()
                 .subject(username)
                 .claim("role", role.name())
+                .claim("userId", userId.toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(secretKey)
@@ -44,6 +46,12 @@ public class JwtTokenProvider {
         Claims claims = parseToken(token);
         String roleStr = claims.get("role", String.class);
         return Role.valueOf(roleStr);
+    }
+
+    public UUID getUserIdFromToken(String token) {
+        Claims claims = parseToken(token);
+        String userIdStr = claims.get("userId", String.class);
+        return UUID.fromString(userIdStr);
     }
 
     public boolean validateToken(String token) {

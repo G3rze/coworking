@@ -57,14 +57,31 @@ Usar el perfil `dev` (configurado por defecto en `application-dev.yml`):
 
 ### JWT
 
-Obtener token mediante `POST /auth/login` con las credenciales anteriores.
+Obtener token mediante `POST /api/v1/auth/login` con las credenciales anteriores.
 
-## 4. Endpoints Principales
+## 4. Versionamiento de API
+
+Esta API usa versionamiento semántico con prefijo `/api/v1/`. Todos los endpoints están versionados.
+
+| Versión | Endpoint Base | Estado |
+|---------|---------------|--------|
+| v1 | `/api/v1` | Actual |
+
+## 5. Estados de Reserva
+
+| Estado | Descripción | Transiciones válidas |
+|--------|-------------|---------------------|
+| PENDING_PAYMENT | Reserva creada, esperando validación de pago | → CONFIRMED, → CANCELLED |
+| CONFIRMED | Pago validado exitosamente | → COMPLETED (admin, después de fecha/hora), → CANCELLED |
+| CANCELLED | Reserva cancelada | (terminal) |
+| COMPLETED | Reserva finalizada (pasó la fecha/hora) | (terminal) |
+
+## 6. Endpoints Principales
 
 ### Autenticación
 
 ```http
-POST /auth/login
+POST /api/v1/auth/login
 Content-Type: application/json
 
 {
@@ -73,20 +90,20 @@ Content-Type: application/json
 }
 ```
 
-### Espacios (ADMIN)
+### Espacios (GET: ADMIN y USER | POST/PUT/DELETE: solo ADMIN)
 
 ```http
-GET /spaces
-POST /spaces
-PUT /spaces/{id}
-DELETE /spaces/{id}
+GET /api/v1/spaces
+POST /api/v1/spaces
+PUT /api/v1/spaces/{id}
+DELETE /api/v1/spaces/{id}
 ```
 
 ### Reservas
 
 ```http
 # Crear reserva (USER)
-POST /reservations
+POST /api/v1/reservations
 {
   "spaceId": "uuid",
   "date": "2026-07-15",
@@ -94,23 +111,26 @@ POST /reservations
   "endTime": "11:00"
 }
 
-# Confirmar reserva (pago)
-POST /reservations/{id}/confirm
+# Confirmar reserva (pago) - ADMIN
+POST /api/v1/reservations/{id}/confirm
 
-# Cancelar reserva
-POST /reservations/{id}/cancel
+# Completar reserva (después de fecha/hora) - ADMIN
+POST /api/v1/reservations/{id}/complete
+
+# Cancelar reserva (USER: propias | ADMIN: todas)
+POST /api/v1/reservations/{id}/cancel
 
 # Ver mis reservas (USER)
-GET /reservations/user/{userId}
+GET /api/v1/reservations/user/{userId}
 
 # Ver todas (ADMIN)
-GET /reservations
+GET /api/v1/reservations
 ```
 
-### Reportes
+### Reportes (ADMIN)
 
 ```http
-GET /reports/occupancy?dateFrom=2026-07-01&dateTo=2026-07-31
+GET /api/v1/reports/occupancy?dateFrom=2026-07-01&dateTo=2026-07-31
 ```
 
 ### Documentación API
@@ -335,6 +355,12 @@ Todos los requisitos funcionales y técnicos solicitados están implementados:
 | Circuit Breaker Resilience4j | ✅ |
 | State Pattern (GoF) | ✅ |
 | Observer Pattern (GoF) | ✅ |
+| Versionamiento API (/api/v1/) | ✅ |
+| Estado COMPLETED | ✅ |
+| Strategy Pattern (Peak Hours Pricing) | ✅ |
+| Optimistic Locking (@Version) | ✅ |
+| Flyway Migraciones | ✅ |
+| Métricas post-commit (@TransactionalEventListener) | ✅ |
 
 ### Servicios Externos Simulados
 
@@ -345,8 +371,7 @@ Todos los requisitos funcionales y técnicos solicitados están implementados:
 
 ## 7. Qué se Haría con Más Tiempo
 
-1. **Flyway/Liquibase** para migraciones de schema versionadas (actualmente `ddl-auto: create-drop`)
-2. **Redis** para caché distribuido (actualmente Caffeine en memoria local)
+1. **Redis** para caché distribuido (actualmente Caffeine en memoria local)
 3. **WebClient reactivo** en lugar de RestTemplate para servicios externos
 4. **OAuth2 Resource Server** en lugar de JWT manual (más idiomático Spring)
 5. **Elasticsearch** para búsqueda full-text de espacios

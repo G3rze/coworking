@@ -5,21 +5,21 @@ import com.gerson.coworking.domain.enums.ReservationStatus;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PendingPaymentState implements ReservationState {
+public class CompletedState implements ReservationState {
 
     @Override
     public ReservationStatus getStatus() {
-        return ReservationStatus.PENDING_PAYMENT;
+        return ReservationStatus.COMPLETED;
     }
 
     @Override
     public boolean canConfirm() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean canCancel() {
-        return true;
+        return false;
     }
 
     @Override
@@ -29,18 +29,16 @@ public class PendingPaymentState implements ReservationState {
 
     @Override
     public Reservation confirm(Reservation reservation) {
-        reservation.setStatus(ReservationStatus.CONFIRMED);
-        return reservation;
+        throw new IllegalStateException("Cannot confirm a completed reservation");
     }
 
     @Override
     public Reservation cancel(Reservation reservation) {
-        reservation.setStatus(ReservationStatus.CANCELLED);
-        return reservation;
+        throw new IllegalStateException("Cannot cancel a completed reservation");
     }
 
     @Override
     public Reservation complete(Reservation reservation) {
-        throw new IllegalStateException("Cannot complete a reservation that is not confirmed");
+        throw new IllegalStateException("Reservation is already completed");
     }
 }

@@ -1,6 +1,7 @@
 package com.gerson.coworking.controller;
 
 import com.gerson.coworking.domain.dto.report.OccupancyReportResponse;
+import com.gerson.coworking.exception.ErrorResponse;
 import com.gerson.coworking.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/reports")
+@RequestMapping("/api/v1/reports")
 @RequiredArgsConstructor
 @Tag(name = "Reports", description = "Reporting endpoints")
 @SecurityRequirement(name = "bearerAuth")
@@ -31,9 +32,9 @@ public class ReportController {
             @ApiResponse(responseCode = "200", description = "Report generated successfully",
                     content = @Content(schema = @Schema(implementation = OccupancyReportResponse.class))),
             @ApiResponse(responseCode = "401", description = "Authentication required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
             @ApiResponse(responseCode = "403", description = "Access denied - admin role required",
-                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/occupancy")
     @PreAuthorize("hasRole('ADMIN')")

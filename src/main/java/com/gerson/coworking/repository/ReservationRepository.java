@@ -4,9 +4,11 @@ import com.gerson.coworking.domain.entity.Reservation;
 import com.gerson.coworking.domain.enums.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -22,10 +24,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
     @EntityGraph(attributePaths = {"space", "user"})
     Optional<Reservation> findById(UUID id);
 
-    @Query("SELECT COUNT(r) > 0 FROM Reservation r WHERE r.space.id = :spaceId " +
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT r FROM Reservation r WHERE r.space.id = :spaceId " +
            "AND r.date = :date AND r.status IN ('PENDING_PAYMENT', 'CONFIRMED') " +
            "AND r.startTime < :endTime AND r.endTime > :startTime")
-    boolean existsConflictingReservation(UUID spaceId, LocalDate date, LocalTime startTime, LocalTime endTime);
+    List<Reservation> findConflictingReservationsWithLock(UUID spaceId, LocalDate date, LocalTime startTime, LocalTime endTime);
+
+    default boolean existsConflictingReservation(UUID spaceId, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return !findConflictingReservationsWithLock(spaceId, date, startTime, endTime).isEmpty();
+    }
 
     @EntityGraph(attributePaths = {"space", "user"})
     List<Reservation> findByUserId(UUID userId);

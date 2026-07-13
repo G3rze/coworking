@@ -41,7 +41,7 @@ class ReportControllerIntegrationTest {
 
     private String obtainToken(String username, String password) throws Exception {
         LoginRequest loginRequest = new LoginRequest(username, password);
-        MvcResult result = mockMvc.perform(post("/auth/login")
+        MvcResult result = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk())
@@ -53,7 +53,7 @@ class ReportControllerIntegrationTest {
     @Test
     @DisplayName("Should return occupancy report for date range - ADMIN access")
     void getOccupancyReport_AdminAccess_ReturnsReport() throws Exception {
-        mockMvc.perform(get("/reports/occupancy")
+        mockMvc.perform(get("/api/v1/reports/occupancy")
                         .header("Authorization", "Bearer " + adminToken)
                         .param("dateFrom", "2026-07-01")
                         .param("dateTo", "2026-07-31"))
@@ -68,7 +68,7 @@ class ReportControllerIntegrationTest {
     @Test
     @DisplayName("Should deny occupancy report access - USER role forbidden")
     void getOccupancyReport_UserAccess_Returns403() throws Exception {
-        mockMvc.perform(get("/reports/occupancy")
+        mockMvc.perform(get("/api/v1/reports/occupancy")
                         .header("Authorization", "Bearer " + userToken)
                         .param("dateFrom", "2026-07-01")
                         .param("dateTo", "2026-07-31"))
@@ -78,7 +78,7 @@ class ReportControllerIntegrationTest {
     @Test
     @DisplayName("Should deny occupancy report access - no auth")
     void getOccupancyReport_NoAuth_Returns401() throws Exception {
-        mockMvc.perform(get("/reports/occupancy")
+        mockMvc.perform(get("/api/v1/reports/occupancy")
                         .param("dateFrom", "2026-07-01")
                         .param("dateTo", "2026-07-31"))
                 .andExpect(status().isUnauthorized());
