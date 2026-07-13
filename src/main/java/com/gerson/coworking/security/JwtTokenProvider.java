@@ -1,6 +1,6 @@
 package com.gerson.coworking.security;
 
-import com.gerson.coworking.config.JwtProperties;
+import com.gerson.coworking.config.AppProperties;
 import com.gerson.coworking.domain.enums.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -13,18 +13,18 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    private final JwtProperties jwtProperties;
+    private final AppProperties appProperties;
     private final SecretKey secretKey;
 
-    public JwtTokenProvider(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-        byte[] keyBytes = Base64.getDecoder().decode(jwtProperties.getSecret());
+    public JwtTokenProvider(AppProperties appProperties) {
+        this.appProperties = appProperties;
+        byte[] keyBytes = Base64.getDecoder().decode(appProperties.getJwt().getSecret());
         this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String username, Role role) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
+        Date expiryDate = new Date(now.getTime() + appProperties.getJwt().getExpiration());
 
         return Jwts.builder()
                 .subject(username)

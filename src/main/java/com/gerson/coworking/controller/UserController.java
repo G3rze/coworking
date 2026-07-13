@@ -3,7 +3,15 @@ package com.gerson.coworking.controller;
 import com.gerson.coworking.domain.dto.user.UserCreateRequest;
 import com.gerson.coworking.domain.dto.user.UserResponse;
 import com.gerson.coworking.domain.entity.User;
+import com.gerson.coworking.domain.mapper.UserMapper;
 import com.gerson.coworking.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +22,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Tag(name = "Users", description = "User management operations")
+@SecurityRequirement(name = "bearerAuth")
 public class UserController {
 
     private final UserService userService;
@@ -22,6 +32,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Create new user", description = "Registers a new user account in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User created successfully",
+                    content = @Content(schema = @Schema(implementation = UserResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Validation error or username/email already exists",
+                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+    })
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserCreateRequest request) {
         if (userService.existsByUsername(request.username())) {
@@ -32,21 +49,22 @@ public class UserController {
         }
 
         User user = userService.createUser(request);
-
-        UserResponse response = new UserResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getRole(),
-                user.getCreatedAt()
-        );
+        UserResponse response = UserMapper.toResponse(user, java.time.ZoneId.of("America/El_Salvador"));
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @Operation(summary = "Get all users", description = "Retrieves all registered users. Only administrators can access this endpoint.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Users retrieved successfully"),
+            @ApiResponse(responseCode = "401", description = "Authentication required",
+                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Access denied - admin role required",
+                    content = @Content(schema = @Schema(implementation = com.gerson.coworking.exception.ErrorResponse.class)))
+    })
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        throw new UnsupportedOperationException("List users not implemented yet");
+        return ResponseEntity.ok(userService.findAll());
     }
 }

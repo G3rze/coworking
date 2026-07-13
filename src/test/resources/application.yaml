@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: coworking-test
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+
+app:
+  jwt:
+    secret: dGhpcy1pcy1hLXZlcnktbG9uZy1zZWNyZXQta2V5LWZvci1qd3Qtc2lnbmluZyEhISEh
+    expiration: 86400000
+  timezone: America/El_Salvador

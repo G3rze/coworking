@@ -1,12 +1,12 @@
 -- Seed data for Coworking Space Management API
 -- Passwords are BCrypt encoded:
--- admin123 -> $2a$10$N9qo8uLOickgx2ZMRZoMy.MqrqQb9OX.O7oHx7u6kUqN3jPVEOhWG
--- user123  -> $2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6
+-- admin123 -> $2a$10$Z7quqKeiQCrzVuiyDMgD2uiDxtAVohkmgg6bFrFWd8062JsndQvO2
+-- user123  -> $2a$10$WV.rC0MoIfB.T6SYNiHIeu.0Pw4PYtAN6cdTTL/e3KXvDtJkDsHAK
 
 INSERT INTO coworking.users (id, username, email, password, role)
 VALUES
-  ('550e8400-e29b-41d4-a716-446655440001', 'admin', 'admin@coworking.com', '$2a$10$N9qo8uLOickgx2ZMRZoMy.MqrqQb9OX.O7oHx7u6kUqN3jPVEOhWG', 'ADMIN'),
-  ('550e8400-e29b-41d4-a716-446655440002', 'user', 'user@coworking.com', '$2a$10$slYQmyNdGzTn7ZLBXBChFOC9f6kFjAqPhccnP6DxlWXx2lPk1C3G6', 'USER');
+  ('550e8400-e29b-41d4-a716-446655440001', 'admin', 'admin@coworking.com', '$2a$10$Z7quqKeiQCrzVuiyDMgD2uiDxtAVohkmgg6bFrFWd8062JsndQvO2', 'ADMIN'),
+  ('550e8400-e29b-41d4-a716-446655440002', 'user', 'user@coworking.com', '$2a$10$WV.rC0MoIfB.T6SYNiHIeu.0Pw4PYtAN6cdTTL/e3KXvDtJkDsHAK', 'USER');
 
 INSERT INTO coworking.spaces (id, name, description, capacity, location, price_per_hour, status)
 VALUES

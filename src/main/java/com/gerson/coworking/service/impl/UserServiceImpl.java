@@ -1,7 +1,10 @@
 package com.gerson.coworking.service.impl;
 
+import com.gerson.coworking.config.ZoneIdProvider;
 import com.gerson.coworking.domain.dto.user.UserCreateRequest;
+import com.gerson.coworking.domain.dto.user.UserResponse;
 import com.gerson.coworking.domain.entity.User;
+import com.gerson.coworking.domain.mapper.UserMapper;
 import com.gerson.coworking.repository.UserRepository;
 import com.gerson.coworking.service.UserService;
 
@@ -9,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -17,10 +22,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ZoneIdProvider zoneIdProvider;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ZoneIdProvider zoneIdProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.zoneIdProvider = zoneIdProvider;
     }
 
     @Override
@@ -33,6 +40,14 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         return userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserResponse> findAll() {
+        return userRepository.findAll().stream()
+                .map(u -> UserMapper.toResponse(u, zoneIdProvider.getZoneId()))
+                .collect(Collectors.toList());
     }
 
     @Override

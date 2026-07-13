@@ -41,4 +41,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID> 
            "(:status IS NULL OR r.status = :status)")
     List<Reservation> findByFilter(UUID spaceId, LocalDate dateFrom,
                                     LocalDate dateTo, ReservationStatus status);
+
+    @EntityGraph(attributePaths = {"space"})
+    @Query("SELECT r FROM Reservation r WHERE r.date >= :dateFrom AND r.date <= :dateTo AND r.status = 'CONFIRMED'")
+    List<Reservation> findConfirmedReservationsInDateRange(LocalDate dateFrom, LocalDate dateTo);
 }

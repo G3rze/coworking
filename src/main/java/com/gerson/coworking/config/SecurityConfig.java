@@ -39,6 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/circuitbreakers").permitAll()
                         .requestMatchers("/spaces/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/reservations/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/reports/**").hasRole("ADMIN")
                         .requestMatchers("/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
